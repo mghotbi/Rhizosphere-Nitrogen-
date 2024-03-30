@@ -57,18 +57,16 @@ Keywords: phenotype, nitrification, near-isogenic lines, biological nitrificatio
 
 # Prerequisites: Ensure that the required packages are installed and loaded.
 
-
-
-reqpkg = c("phyloseq","vegan","edgeR", "PoiClaClu","microbiome", "DESeq2", "foreach", "doParallel", 
-           "plyr", "reshape2", "grid", "scales", "cluster","ape", "dplyr",
-           "igraph", "ggnet", "microbiomeutilities", "intergraph", "network", "SpiecEasi",
-           "data.table", "decontam", "ggtext", "devtools", "dada2", "ggplot2", "ggpubr",
-           "agridat", "lme4", "rstatix", "emmeans", "microbiomeMarker", "lmerTest")
+reqpkg <- c("phyloseq", "vegan", "edgeR", "PoiClaClu", "microbiome", "DESeq2", "foreach", "doParallel", 
+            "plyr", "reshape2", "grid", "scales", "cluster", "ape", "dplyr",
+            "igraph", "ggnet", "microbiomeutilities", "intergraph", "network", "SpiecEasi",
+            "data.table", "decontam", "ggtext", "devtools", "dada2", "ggplot2", "ggpubr",
+            "agridat", "lme4", "rstatix", "emmeans", "microbiomeMarker", "lmerTest")
 
 # Check against installed packages:
 
-inpkg = installed.packages()[, "Package"]
-neededpkg = reqpkg[!reqpkg %in% inpkg]
+inpkg <- installed.packages()[, "Package"]
+neededpkg <- reqpkg[!reqpkg %in% inpkg]
 
 if (length(neededpkg) > 0) {
   cat("The following package(s) need to be installed:", paste(neededpkg, collapse = ", "), "\n")
@@ -79,10 +77,10 @@ if (length(neededpkg) > 0) {
   cat("All required packages are already installed.\n")
 }
 
-# Load the required packages:
+# Load required packages:
 cat("Loading required packages...\n")
 invisible(lapply(reqpkg, library, character.only = TRUE))
-cat("Packages loaded successfully\n :) ")
+cat("All required packages loaded successfully.\n")
 
 
 
