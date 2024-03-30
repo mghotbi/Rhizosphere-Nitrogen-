@@ -2,11 +2,18 @@
 #introduce the Rep as a factor
 Rep<-as.factor(physeq_rel22)$Rep
 #summerize metadata based on replications
-
 sum.net2=physeq_rel22 %>% 
   group_by(Rep) %>% 
   select_if(is.numeric) %>%
   summarise_all(list(mean = ~mean(.)))
+
+
+#alternatively create a new column and merge it with your phyloseq obj
+vec <- interaction(Genotype, Inoculant, N.dosages, Gorwth.stages)
+Meta22 %>%
+  mutate(newcol = vec)
+
+
 
 #now re-merge metadata with biome file
 
