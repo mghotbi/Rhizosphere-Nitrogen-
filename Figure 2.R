@@ -8,10 +8,12 @@ sum.net2=physeq_rel22 %>%
   summarise_all(list(mean = ~mean(.)))
 
 
-#alternatively create a new column and merge it with your phyloseq obj
+#alternatively create a new column, remove duplicates and merge it with your phyloseq obj
 vec <- interaction(Genotype, Inoculant, N.dosages, Gorwth.stages)
-Meta22 %>%
-  mutate(newcol = vec)
+new_df <- meta22 %>%
+  mutate(newcol = vec) %>%
+  distinct(newcol, .keep_all = TRUE)
+
 
 
 
