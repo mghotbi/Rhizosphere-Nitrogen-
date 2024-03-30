@@ -12,7 +12,8 @@ sum.net2=physeq_rel22 %>%
 vec <- interaction(Genotype, Inoculant, N.dosages, Gorwth.stages)
 new_df <- meta22 %>%
   mutate(newcol = vec) %>%
-  distinct(newcol, .keep_all = TRUE)
+  distinct(newcol, .keep_all = TRUE) %>%
+  na.omit()
 
 
 
