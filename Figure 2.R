@@ -18,7 +18,7 @@ new_df <- meta22 %>%
 
 
 
-#now re-merge metadata with biome file
+#now re-merge new col of metadata with biome file
 
 # Compositional data
 physeq_rel22 <- transform_sample_counts(physeq22, function(x) 100 * x / sum(x))
