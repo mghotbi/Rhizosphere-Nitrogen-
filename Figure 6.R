@@ -17,7 +17,7 @@ species_colors <- c(
   "uncultured_crenarchaeote" = "#0e669b",
   "uncultured_Gemmatimonas" = "dodgerblue")
 
-# Subset samples for high N dosage
+# Subset samples for high N level
 NETWORKglom22_vt_Nhigh <- subset_samples(NETWORKglom22_vt_net, N.dosages == "N:67" & Inoculant == "Proven")
 
 # Perform taxonomic aggregation
