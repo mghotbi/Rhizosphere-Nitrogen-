@@ -1,4 +1,4 @@
-# Tidy phyloseq object# you can fund my tudy_phyloseq object in the little things branch
+# Tidy phyloseq object# you can find my tidy_phyloseq object in the_little_things branch
 glom22_vt_net <- tidy_phyloseq(glom22_vt_net)
 
 # Subset taxa for network
