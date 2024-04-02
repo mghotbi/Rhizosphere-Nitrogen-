@@ -80,7 +80,6 @@ sample_data(top_v5)$N.dosage <- factor(sample_data(physeq_relsum22)$N.dosage, le
 sample_data(top_v5)$Genotype <- factor(sample_data(physeq_relsum22)$Genotype, levels = c("B73", "NIL 1", "NIL 2"))
 sample_data(top_v5)$Inoculant <- factor(sample_data(physeq_relsum22)$Inoculant, levels = c("None", "Proven"))
 
-top_v5 <- subset_taxa(top_v5, Genus != "uncultured")
 
 o <- plot_bar(top_v5, x = "Genotype", fill = "Genus") +
   scale_fill_manual(values = c(
