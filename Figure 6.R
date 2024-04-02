@@ -54,10 +54,7 @@ o <- plot_bar(top_v5, x = "Genotype", fill = "Phylum") +
 # Additional theme adjustments
 ooo <- o +   theme(strip.text.x = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold")) +
   theme(strip.text.y = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"))
-
-v <- ooo +  theme(strip.text.y = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"))
-
-k1 <- v + theme(strip.background = element_rect(colour = "black", fill = "gray98")) +
+k1 <- ooo + theme(strip.background = element_rect(colour = "black", fill = "gray98")) +
   theme(strip.background = element_rect(colour = "white", fill = "gray97"),
         strip.text.x = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"),
         legend.position = "right",
@@ -100,8 +97,7 @@ o <- plot_bar(top_v5, x = "Genotype", fill = "Genus") +
   facet_grid(cols = vars(paste(Inoculant, N.dosages, sep = "_")), scales = "free_y", switch = 'x') +
   mytheme +  theme(strip.text.x = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"))
 ooo <- o +   theme(strip.text.x = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"))
-v <- ooo +   theme(strip.text.y = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"))
-k2 <- v +   theme(strip.background = element_rect(colour = "black", fill = "gray98")) +
+k2 <- ooo +   theme(strip.background = element_rect(colour = "black", fill = "gray98")) +
   theme(strip.background = element_rect(colour = "white", fill = "gray97"),
         strip.text.x = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"),
         legend.position = "right",
