@@ -11,13 +11,13 @@ formatted_cors <- function(df){
     mutate(sig_p = ifelse(P < .05, T, F), p_if_sig = ifelse(P <.05, P, NA), r_if_sig = ifelse(P <.05, r, NA)) }
 
 
-# Install and load the required library
+#  libraries
 if (!requireNamespace("RColorBrewer", quietly = TRUE)) {
   install.packages("RColorBrewer")
 }
 library(RColorBrewer)
 
-# Your original code
+# code
 mat <- as.matrix(cor(meta, ASV))
 wrote
 pheatmap::pheatmap(mat, 
