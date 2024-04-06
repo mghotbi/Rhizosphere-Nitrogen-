@@ -1,12 +1,12 @@
 ## **Figure 1a-b:** Cladogram of fungal taxa contributing significantly to community composition variation (a) and abundance of top 10 genera for each of the top 3 phyla across genotypes (B73, NIL 1, and NIL 2) at V8 and VT growth stages (b), irrespective of management.
 
 # Make your phyloseq object
-mydata16S <- import_biom(BIOMfilename = "taxonomy.feature-table.biom", treefilename = "tree.nwk", parseFunction = parse_taxonomy_default)
-mapfile16S <- import_qiime_sample_data("metadata.txt")
-physeq <- merge_phyloseq(mydata16S, mapfile16S)
+mydata <- import_biom(BIOMfilename = "taxonomy.feature-table.biom", treefilename = "tree.nwk", parseFunction = parse_taxonomy_default)
+mapfile <- import_qiime_sample_data("metadata.txt")
+physeqITS <- merge_phyloseq(mydata, mapfile)
 
 # Subset the levels of the factors
-VT_N0 <- subset_samples(physeq, Growth.stage == "VT" | N.dosages == "N:0" | Inoculant == "none")
+VT_N0 <- subset_samples(physeqITS, Growth.stage == "VT" | N.dosages == "N:0" | Inoculant == "none")
 
 ## a)
 mm_lefse <- run_lefse(
@@ -24,7 +24,7 @@ plot_cladogram(mm_lefse, color = MG)
 library(ggplot2)
 
 # Subset taxa based on specified Phyla
-top <- subset_taxa(physeqITSsum, Phylum %in% c("Ascomycota", "Basidiomycota", "Mortierellomycota"))
+top <- subset_taxa(physeqITS, Phylum %in% c("Ascomycota", "Basidiomycota", "Mortierellomycota"))
 top <- transform_sample_counts(top, function(OTU) OTU / sum(OTU))
 
 # Agglomerate taxa at the Genus level
