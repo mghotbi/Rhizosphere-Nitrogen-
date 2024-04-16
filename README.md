@@ -57,10 +57,10 @@ Keywords: phenotype, nitrification, near-isogenic lines, biological nitrificatio
 
 # Prerequisites: Ensure that the required packages are installed and loaded.
 
-reqpkg <- c("phyloseq", "vegan", "microbiome", "microbiomeMarker","DESeq2", 
+reqpkg <- c("phyloseq", "vegan", "microbiome", "DESeq2", 
             "plyr", "reshape2", "grid", "scales", "cluster", "ape", "dplyr",
             "igraph", "ggnet", "microbiomeutilities", "network", "SpiecEasi",
-            "data.table", "decontam", "ggtext", "devtools", "dada2", "ggplot2", "ggpubr",
+            "data.table", "decontam", "ggtext","microbiomeMarker", "devtools", "dada2", "ggplot2", "ggpubr",
             "agridat", "lme4", "rstatix", "emmeans", "lmerTest")
 
 # Check against installed packages:
