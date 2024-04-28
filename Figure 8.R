@@ -10,7 +10,6 @@ R_label <- paste("R² =", formatC(r_squared, digits = 2))
 
 
 # Create ggplots
-#plantdata has been deposited in https://doi.org/10.13012/B2IDB-4878391_V1
 NIL2 <- ggplot(Plantdata22NIL2, aes(x = log(VT.Plant.N.Content), y = log(Grain.N.concentration), color = management)) +
   geom_point(size = 2) +  
   geom_smooth(method = lm, se = TRUE, fill = "gray93") + 
