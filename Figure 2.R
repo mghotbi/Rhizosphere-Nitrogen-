@@ -67,7 +67,7 @@ plot_vt <- plot_bar_chart(top_v5_vt, stage = "VT")
 ggarrange(plot_v8, plot_vt, ncol = 1, nrow = 2, common.legend = TRUE, legend = "right")
 
 ### b
-
+##individual fig for each genotype
 
 library(ggplot2)
 library(dplyr)
@@ -214,3 +214,117 @@ for (genotype in genotypes) {
   } else {
     print(paste("No plots were created for:", genotype))
   }}
+
+
+  ## all together 
+  #############The best one :)
+nit.glom@sam_data
+nit_melt<-psmelt(nit.glom)
+write.csv(nit_melt,"nit_mel1t.csv")
+PotentialN22<-read.csv("PotentialN22_N67_4.csv")
+nit_melt<-read.csv("nit_mel1t.csv")
+dt<-read.csv("dt.csv")
+
+library(tidyr)
+dto <- dt %>%
+  group_by(sample.id) %>%
+  arrange(desc(Potential_N_micro)) 
+
+
+#############
+MG <- c("#66a182","#2e4057","#8d96a0","#0e669b","#00798c","dodgerblue4", "steelblue2","lightskyblue4","#82cfd0","#b2e0e4","honeydew3","mintcream","#8d96a3","lavender","#CC6686","lavenderblush2","mistyrose3","#e1deda","darkgoldenrod","burlywood","papayawhip","wheat4","cornsilk3","khaki2","beige","gray60","gray80","gray96")
+
+# Define your custom theme
+mytheme <- theme_bw() + 
+  theme(
+    panel.grid.minor = element_blank(), # gets rid of grey and lines in the middle
+    panel.grid.major = element_blank(), # gets rid of grey and lines in the middle
+    panel.background = element_rect(fill = "white"), # makes entire background white
+    plot.background = element_rect(fill = 'white', color = "#e1deda"),
+    panel.border = element_rect(linetype = "solid", fill = NA), # gets rid of square going around the entire graph
+    axis.line.x = element_line(colour = 'black', size = 0.6), # sets the axis line size
+    axis.line.y = element_line(colour = 'black', size = 0.6), # sets the axis line size
+    axis.ticks = element_line(colour = 'black', size = 0.35),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 12), 
+    legend.key.size = unit(0.8, 'cm'), # sets the tick lines
+    axis.title.x = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"), # size of x-axis title
+    axis.title.y = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"), # size of y-axis title
+    axis.text.x = element_text(family = "Times New Roman", size = 11, angle = 0, color = "black", face = "bold"), # size of x-axis text
+    axis.text.y = element_text(family = "Times New Roman", size = 11, color = "black", face = "bold"), # size of y-axis text
+    plot.title = element_text(color = "black", size = 12, face = "bold"),
+    plot.subtitle = element_text(size = 11),
+    strip.background = element_rect(colour = "white", fill = "white"), # set strip background color to white
+    strip.text.x = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"), # set strip text size to 12 for x
+    strip.text.y = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"), # set strip text size to 12 for y
+    legend.position = "top", # set legend position to top
+    legend.key = element_blank() # remove legend key
+  )
+
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(ggrepel)
+
+# Read data
+dt <- read.csv("Final.csv")
+
+# Ensure necessary columns are factors
+dt$Genotype <- as.factor(dt$Genotype)
+dt$N.dosage <- as.factor(dt$N.dosage)
+dt$Inoculant <- as.factor(dt$Inoculant)
+dt$management <- as.factor(dt$management)
+dt$Growth.stage <- as.factor(dt$Growth.stage)
+
+max_y_values <- dt %>%
+  group_by(Growth.stage, management) %>%
+  summarise(max_y = max(sqrt(Abundance), na.rm = TRUE)) %>%
+  ungroup()
+
+df_label <- dt %>%
+  group_by(Genotype, management, Growth.stage) %>%
+  summarise(
+    Inter = if(n_distinct(Potential_N_micro) > 1) lm(Abundance ~ Potential_N_micro)$coefficients[1] else NA,
+    Coeff = if(n_distinct(Potential_N_micro) > 1) lm(Abundance ~ Potential_N_micro)$coefficients[2] else NA,
+    pval = if(n_distinct(Potential_N_micro) > 1) summary(lm(Abundance ~ Potential_N_micro))$coefficients[2, 4] else NA,
+    r2 = if(n_distinct(Potential_N_micro) > 1) summary(lm(Abundance ~ Potential_N_micro))$r.squared else NA
+  ) %>%
+  ungroup() %>%
+  mutate(
+    Label = paste(
+      "bold(italic(y))==bold(", round(Inter, 3), ")", 
+      ifelse(Coeff < 0, " - ", " + "), 
+      "bold(", round(abs(Coeff), 3), ") * bold(italic(x))",
+      "~~~~bold(italic(R^2))==bold(", round(r2, 3), ")",
+      "~~bold(italic(p))==bold(", round(pval, 3), ")", sep = ""
+    )  ) %>%
+  left_join(max_y_values, by = c("Growth.stage", "management"))
+
+df_label <- df_label %>%
+  group_by(Growth.stage, management) %>%
+  mutate(
+    y_pos = max_y - seq(0, length.out = n()) * (max_y / (n() + 1))  # Adjust spacing by adding +1 to n()
+  ) %>%
+  ungroup()
+
+x_pos <- max(log1p(dt$Potential_N_micro), na.rm = TRUE) * 0.65  # Move left by setting factor < 0.75
+
+# Plotting
+NILs_B73 <- ggplot(dt, aes(x = log1p(Potential_N_micro), y = log1p(Abundance), color = Genotype, group = Genotype)) +
+  geom_smooth(aes(color = Genotype, fill = Genotype), method = "lm", se = TRUE) +  # Change method to lm for linear model
+  geom_point(size = 2) +  # Reduce the size of points
+  geom_text_repel(data = df_label,
+                  aes(x = x_pos, y = y_pos,  # Adjust x and y positions
+                      label = Label, color = Genotype), 
+                  show.legend = FALSE, parse = TRUE, size = 3,  # Make equations smaller
+                  box.padding = 0.3, point.padding = 0.3, max.overlaps = 10, 
+                  nudge_y = -0.15) +  # Nudge labels down slightly
+  scale_color_manual(values = MG) +
+  scale_fill_manual(values = MG) +
+  ggtitle("") +
+  facet_grid(rows = vars(Growth.stage), cols = vars(management), scales = "free_y", switch = 'x') +
+  labs(x = "Potential Nitrification", y = "Nitrifier Abundance") +
+  mytheme +  # Apply the custom theme
+  guides(color = guide_legend(override.aes = list(size = 2)))  # Adjust the size of points in the legend
+print(NILs_B73)
