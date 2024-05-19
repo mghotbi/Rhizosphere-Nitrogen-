@@ -1,3 +1,4 @@
+#a
 # Re-build the phyloseq object with the sum of the factors (sum up replications)
 #introduce the Rep as a factor
 Rep<-as.factor(physeq_rel22)$Rep
@@ -14,8 +15,6 @@ new_df <- meta22 %>%
   mutate(newcol = vec) %>%
   distinct(newcol, .keep_all = TRUE) %>%
   na.omit()
-
-
 
 
 #now re-merge new col of metadata with biome file
@@ -67,3 +66,151 @@ plot_vt <- plot_bar_chart(top_v5_vt, stage = "VT")
 # Arrange plots
 ggarrange(plot_v8, plot_vt, ncol = 1, nrow = 2, common.legend = TRUE, legend = "right")
 
+### b
+
+
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(ggrepel)
+library(gridExtra)
+nit.glom@sam_data
+nit_melt<-psmelt(nit.glom)
+write.csv(nit_melt,"nit_melt.csv")
+PotentialN22<-read.csv("PotentialN22_N67_4.csv")
+nit_melt<-read.csv("nit_melt.csv")
+
+Final3 <-  dplyr::left_join(PotentialN22,nit_melt, by="sample.id")%>%
+  group_by(sample.id) %>%
+  arrange(desc(Potential_N_micro)) 
+write.csv(Final3,"Final3.csv")
+                                        
+#created using left_join by sample.id/common in both files
+dt <- read.csv("Final3.csv")
+
+# Ensure necessary columns are factors
+dt$Genotype <- as.factor(dt$Genotype)
+dt$N.dosage <- as.factor(dt$N.dosage)
+dt$Inoculant <- as.factor(dt$Inoculant)
+dt$management <- as.factor(dt$management)
+dt$Growth.stage <- as.factor(dt$Growth.stage)
+print(levels(dt$management))
+
+# Define the custom theme
+mytheme <- theme_bw() + 
+  theme( panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.background = element_rect(fill = "white"),
+    plot.background = element_rect(fill = 'white', color = "#e1deda"),
+    panel.border = element_rect(linetype = "solid", fill = NA),
+    axis.line.x = element_line(colour = 'black', size = 0.6),
+    axis.line.y = element_line(colour = 'black', size = 0.6),
+    axis.ticks = element_line(colour = 'black', size = 0.35),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 12), 
+    legend.key.size = unit(0.8, 'cm'),
+    axis.title.x = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"),
+    axis.title.y = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"),
+    axis.text.x = element_text(family = "Times New Roman", size = 11, angle = 0, color = "black", face = "bold"),
+    axis.text.y = element_text(family = "Times New Roman", size = 11, color = "black", face = "bold"),
+    plot.title = element_text(color = "black", size = 12, face = "bold"),
+    plot.subtitle = element_text(size = 11),
+    strip.background = element_rect(colour = "white", fill = "white"),
+    strip.text.x = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"),
+    strip.text.y = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"),
+    legend.position = "top",
+    legend.key = element_blank()
+  )
+
+create_plot <- function(data, genotype, management_status) {
+  # Filter data based on genotype and management status
+  filtered_data <- data %>%
+    filter(Genotype == genotype & management == management_status)
+  
+  if (nrow(filtered_data) == 0) {
+    return(NULL)
+  }
+  
+  # maximum y-value for combination of Growth.stage and management
+  max_y_values <- filtered_data %>%
+    group_by(Growth.stage) %>%
+    summarise(max_y = max(log1p(Abundance), na.rm = TRUE)) %>%
+    ungroup()
+  
+  # Create df_label DataFrame and join with max_y_values to get the max_y for each facet
+  df_label <- filtered_data %>%
+    group_by(Growth.stage) %>%
+    summarise(
+      Inter = if(n_distinct(Potential_N_micro) > 1) lm(log1p(Abundance) ~ log1p(Potential_N_micro))$coefficients[1] else NA,
+      Coeff = if(n_distinct(Potential_N_micro) > 1) lm(log1p(Abundance) ~ log1p(Potential_N_micro))$coefficients[2] else NA,
+      pval = if(n_distinct(Potential_N_micro) > 1) summary(lm(log1p(Abundance) ~ log1p(Potential_N_micro)))$coefficients[2, 4] else NA,
+      r2 = if(n_distinct(Potential_N_micro) > 1) summary(lm(log1p(Abundance) ~ log1p(Potential_N_micro)))$r.squared else NA
+    ) %>%
+    ungroup() %>%
+    mutate(
+      Label = paste(
+        "bold(italic(y))==bold(", round(Inter, 3), ")", 
+        ifelse(Coeff < 0, " - ", " + "), 
+        "bold(", round(abs(Coeff), 3), ") * bold(italic(x))",
+        "~~~~bold(italic(R^2))==bold(", round(r2, 3), ")",
+        "~~bold(italic(p))==bold(", round(pval, 3), ")", sep = ""
+      )
+    ) %>%
+    left_join(max_y_values, by = "Growth.stage")
+  
+  df_label <- df_label %>%
+    group_by(Growth.stage) %>%
+    mutate(
+      y_pos = max_y - seq(0, length.out = n()) * (max_y / (n() + 1))  # Adjust spacing by adding +1 to n()
+    ) %>%
+    ungroup()
+  
+  # if you need to auto-adjust the x position for labels/*** edit it as you need
+  x_pos <- max(log1p(filtered_data$Potential_N_micro), na.rm = TRUE) * 0.65  # Move left by setting factor < 0.75
+  
+  # Plotting
+  p <- ggplot(filtered_data, aes(x = log1p(Potential_N_micro), y = log1p(Abundance), color = Growth.stage, group = Growth.stage)) +
+    geom_smooth(aes(color = Growth.stage, fill = Growth.stage), method = "lm", se = TRUE) +  # Change method to lm for linear model
+    geom_point(size = 2) +  # Reduce the size of points
+    geom_text_repel(data = df_label,
+                    aes(x = x_pos, y = y_pos,  # Adjust x and y positions
+                        label = Label, color = Growth.stage), 
+                    show.legend = FALSE, parse = TRUE, size = 5,  # Increase the size of the equations
+                    box.padding = 0.3, point.padding = 0.3, max.overlaps = 10, 
+                    nudge_y = -0.15) +  # Nudge labels down slightly
+    scale_color_manual(values = MG) +
+    scale_fill_manual(values = MG) +
+    ggtitle(paste("Genotype:", genotype, "Management:", management_status)) +
+    labs(x = "ln(Potential Nitrification)", y = "ln(Nitrifier Abundance)") +  # Add "ln" to axis labels
+    mytheme +  # Apply the custom theme
+    guides(color = guide_legend(override.aes = list(size = 2)))  # Adjust the size of points in the legend
+  
+  return(p)}
+#please recall I have already introduced mytheme and MG (color pallet)
+# Genotypes 
+genotypes <- c("NIL 1", "NIL 2", "B73")
+
+# save plots 
+for (genotype in genotypes) {
+  dt_genotype <- filter(dt, Genotype == genotype)
+  management_levels <- unique(dt_genotype$management)
+  
+  plots <- list()
+  for (management_status in management_levels) {
+    plot_name <- paste(genotype, management_status, sep = "_")
+    print(paste("Creating plot for:", plot_name))  # Debug print statement
+    plot <- create_plot(dt_genotype, genotype, management_status)
+    if (!is.null(plot)) {
+      plots[[plot_name]] <- plot
+    }
+  }
+   if (length(plots) > 0) {
+    # Arrange plots in a grid
+    grid_plot <- marrangeGrob(plots, nrow = 2, ncol = 2, top = paste("Genotype:", genotype))
+    
+    # Save the grid plot to a file
+    print(paste("Saving plots to file for:", genotype))  # Debug print statement
+    ggsave(filename = paste0(genotype, "_management_plots.tiff"), plot = grid_plot, width = 16, height = 12, units = "in", dpi = 600)
+  } else {
+    print(paste("No plots were created for:", genotype))
+  }}
