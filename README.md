@@ -50,13 +50,13 @@ Keywords: phenotype, nitrification, near-isogenic lines, biological nitrificatio
 
 
 
+---
 
 **The R codes relevant to each figure have been published here to assist readers in navigating and reproducing them easily.**
 
-
-
 # Prerequisites: Ensure that the required packages are installed and loaded.
 
+```r
 reqpkg <- c("phyloseq", "vegan", "microbiome", "DESeq2", 
             "plyr", "reshape2", "grid", "scales", "cluster", "ape", "dplyr","ggrepel",
             "igraph", "ggnet", "microbiomeutilities", "network", "SpiecEasi",
@@ -64,7 +64,6 @@ reqpkg <- c("phyloseq", "vegan", "microbiome", "DESeq2",
             "agridat", "lme4", "rstatix", "emmeans", "lmerTest")
 
 # Check against installed packages:
-
 inpkg <- installed.packages()[, "Package"]
 neededpkg <- reqpkg[!reqpkg %in% inpkg]
 
@@ -81,9 +80,10 @@ if (length(neededpkg) > 0) {
 cat("Loading required packages...\n")
 invisible(lapply(reqpkg, library, character.only = TRUE))
 cat("All required packages loaded successfully.\n")
+```
 
-
-
-
+---
 
 <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/mghotbi/Rhizosphere-Nitrogen-Fate">Rhizosphere-nitrogen-fate</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://www.linkedin.com/in/mitra-ghotbi-78b34030/">Mitra Ghotbi</a> is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">Attribution-ShareAlike 4.0 International<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1"></a></p>
+
+---
