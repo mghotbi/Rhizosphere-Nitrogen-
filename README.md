@@ -1,12 +1,8 @@
 **Management and rhizosphere microbial associations modulate genetic-driven nitrogen fate**
 ---
 
-**Authors:**
+Mitra Ghotbi<sup>1,2*</sup>, Marjan Ghotbi<sup>3</sup>, Yakov Kuzyakov<sup>4,5</sup>, William R. Horwath<sup>6</sup>
 
-- Mitra Ghotbi<sup>1,2*</sup>
-- Marjan Ghotbi<sup>3</sup>
-- Yakov Kuzyakov<sup>4,5</sup>
-- William R. Horwath<sup>6</sup>
 
 **Affiliations:**
 
