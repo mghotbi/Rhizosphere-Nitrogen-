@@ -1,5 +1,3 @@
----
-
 # Rhizosphere-nitrogen-fate
 
 **Management and rhizosphere microbial associations modulate genetic-driven nitrogen fate**
@@ -33,7 +31,7 @@
 
 **Corresponding Author:**
 
-Dr. Mitra Ghotbi
+Mitra Ghotbi, PhD.
 
 - Department of Biology, Middle Tennessee State University at Murfreesboro, TN, USA
 - Email: mitra.ghotbi@mtsu.edu
