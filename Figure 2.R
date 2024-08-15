@@ -17,7 +17,14 @@ new_df <- meta22 %>%
   na.omit()
 
 
-#now re-merge new col of metadata with biome file
+#then keep the unique(vec) and prune_samples based on vec, eventually prune_taxa based on pruned samples 
+# Prune samples and taxa based on `vec`
+unique_vec <- unique(vec)
+pruned_physeq <- prune_samples(sample_data(physeq_rel22)$vec %in% unique_vec, physeq_rel22)
+pruned_physeq <- prune_taxa(taxa_sums(pruned_physeq) > 0, pruned_physeq)
+
+
+physeq22<- pruned_physeq
 
 # Compositional data
 physeq_rel22 <- transform_sample_counts(physeq22, function(x) 100 * x / sum(x))
