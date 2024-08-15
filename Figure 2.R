@@ -73,6 +73,102 @@ plot_vt <- plot_bar_chart(top_v5_vt, stage = "VT")
 # Arrange plots
 ggarrange(plot_v8, plot_vt, ncol = 1, nrow = 2, common.legend = TRUE, legend = "right")
 
+### V5 and V12 2021 suplemental 
+physeq21 <- readRDS(file = "physeq21.rds")
+
+# Extract Nitrifiers
+physeq_rel21 <- transform_sample_counts(physeq21, function(x) 100 * x / sum(x))
+
+Nitrifiers.tax21 <- subset_taxa(physeq_rel21, Genus %in% c("Nitrosospira", "Candidatus_Nitrososphaera", "Nitrososphaeraceae", "Nitrospira_japonica", "Nitrobacter", "Nitrosomonas", "Nitrosospira", "Nitrospira"))
+
+# Subset V8 and VT
+nit_V5 <- subset_samples(Nitrifiers.tax21, Growth.stage == "V5")
+nit_V12 <- subset_samples(Nitrifiers.tax21, Growth.stage == "V12")
+
+# Using glom function for clean-up
+nit.glom22_V5 <- tax_glom(nit_V12, taxrank = "Genus")
+nit.glom22_V5_1 <- prune_taxa(taxa_sums(nit.glom22_V5) > 0, nit.glom22_V5)
+# Get top 20 Genus
+Genus10 <- names(sort(taxa_sums(nit.glom22_V5_1), TRUE)[1:20])
+top_v5 <- prune_taxa(Genus10, nit.glom22_V5_1)
+
+nit.glom22_V12 <- tax_glom(nit_V12, taxrank = "Genus")
+nit.glom22_V12_1 <- prune_taxa(taxa_sums(nit.glom22_V12) > 0, nit.glom22_V12)
+# Get top 20 Genus
+Genus10 <- names(sort(taxa_sums(nit.glom22_V12_1), TRUE)[1:20])
+top_v12 <- prune_taxa(Genus10, nit.glom22_V12_1)
+
+# reintroduce factros
+sample_data(top_v12)$Growth.stage <- factor(sample_data(physeq_rel21)$Growth.stage, levels = c("V5", "V12"))
+sample_data(top_v12)$N.dosage <- factor(sample_data(physeq_rel21)$N.dosage, levels = c("N:0", "N:67"))
+sample_data(top_v12)$Genotype <- factor(sample_data(physeq_rel21)$Genotype, levels = c("B73", "NIL 1"))
+sample_data(top_v12)$Inoculant <- factor(sample_data(physeq_rel21)$Inoculant, levels = c("None", "Proven"))
+
+
+plot_bar_chart <- function(data, stage) {
+  # Build the base plot
+  p <- plot_bar(data, x = "Genotype", fill = "Genus") +
+    scale_fill_manual(values = c(
+      "Candidatus_Nitrososphaera" = "#66a182",
+      "Nitrosomonas" = "#2e4057",
+      "Nitrososphaeraceae" = "#8d96a0",
+      "Nitrosospira" = "gray",
+      "Nitrospira" = "#0e669b",
+      "Nitrobacter" = "darkgoldenrod"
+    )) +
+    labs(x = "", y = "Relative abundance (%)") +
+    facet_grid(cols = vars(Management), scales = "free_y", switch = 'x') +
+    mytheme  # Assuming mytheme is defined elsewhere in your code
+  
+  # Apply title based on the stage after building the plot
+  if (stage == "V5") {
+    p <- p + ggtitle("V5_2021 Nitrifier relative abundance across factors")
+  } else if (stage == "V12") {
+    p <- p + ggtitle("V12_2021 Nitrifier relative abundance across factors")
+  } else {
+    p <- p + ggtitle(paste(stage, "Nitrifier relative abundance across factors"))
+  }
+  
+  # Apply legend editing and other theme adjustments after building the plot
+  p <- p + theme(
+    strip.text.x = element_text(family = "Times New Roman", size = 12, color = "black", face = "bold"),  # Bold facet text
+    axis.text.x = element_text(angle = 0, hjust = 0.5),  # Set x-axis labels to horizontal
+    legend.position = "top",  # Positioning the legend at the top
+    legend.direction = "horizontal",  # Arrange legend items horizontally
+    legend.box = "horizontal",  # Ensure legend items are in one row
+    legend.text = element_text(size = 11, color = "black", face = "italic"),
+    legend.key.size = unit(0.7, 'cm'),  # Adjusting the legend key size
+    legend.box.spacing = unit(0.5, 'cm')  # Optional: Add spacing between the legend and plot
+  ) +
+    guides(fill = guide_legend(nrow = 1))  # Ensure the legend is in one row
+  
+  return(p)
+}
+
+
+sample_data(top_v5_2021)$Management <- paste(sample_data(top_v5_2021)$Inoculant, 
+                                             sample_data(top_v5_2021)$N.dosage, 
+                                             sep = "_")
+sample_data(top_v12_2021)$Management <- paste(sample_data(top_v12_2021)$Inoculant, 
+                                              sample_data(top_v12_2021)$N.dosage, 
+                                              sep = "_")
+
+# Convert Management to factor and specify the levels
+sample_data(top_v5_2021)$Management <- factor(sample_data(top_v5_2021)$Management, 
+                                              levels = c("None_N:0", "None_N:67", "Proven_N:0", "Proven_N:67"))
+sample_data(top_v12_2021)$Management <- factor(sample_data(top_v12_2021)$Management, 
+                                               levels = c("None_N:0", "None_N:67", "Proven_N:0", "Proven_N:67"))
+
+# Plotting for V5 and V12 stages in 2021
+plot_v5_2021 <- plot_bar_chart(top_v5_2021, stage = "V5")
+plot_v12_2021 <- plot_bar_chart(top_v12_2021, stage = "V12")
+
+# Arrange plots in a grid (2021)
+ggarrange(plot_v5_2021, plot_v12_2021, ncol = 1, nrow = 2, common.legend = TRUE, legend = "top")
+
+###############################                                      
+                                  
+                                      
 ### b
 ##individual fig for each genotype
 
