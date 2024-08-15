@@ -43,7 +43,7 @@ nit.glom22_V8 <- tax_glom(nit_V8, taxrank = "Genus")
 nit.glom22_V8_1 <- prune_taxa(taxa_sums(nit.glom22_V8) > 0, nit.glom22_V8)
 # Get top 20 Genus
 Genus10 <- names(sort(taxa_sums(nit.glom22_V8_1), TRUE)[1:20])
-top_v5 <- prune_taxa(Genus10, nit.glom22_V8_C)
+top_v5 <- prune_taxa(Genus10, nit.glom22_V8_1)
 
 # reintroduce factros
 sample_data(top_v5)$Growth.stage <- factor(sample_data(physeq_rel22)$Growth.stage, levels = c("V8", "VT"))
