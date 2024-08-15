@@ -328,3 +328,72 @@ NILs_B73 <- ggplot(dt, aes(x = log1p(Potential_N_micro), y = log1p(Abundance), c
   mytheme +  # Apply the custom theme
   guides(color = guide_legend(override.aes = list(size = 2)))  # Adjust the size of points in the legend
 print(NILs_B73)
+
+
+
+  Figure 2b. Averaged soil NH4 and NO3 leachate at V5 and V8 across Genotypes and management/N retention
+
+    # Load required libraries
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+NO3.LSmeans <- read.csv("NO3.LSmeans.csv", header = TRUE, row.names = 1)
+NH4.LSmeans <- read.csv("NH4.LSmeans.csv", header = TRUE, row.names = 1)
+
+# Filter for the growth stages # we just need V5 and 12 
+NO3_filtered <- NO3.LSmeans %>% filter(Growth.stage %in% c("V5", "V12"))
+NH4_filtered <- NH4_filtered %>% filter(Growth.stage %in% c("V5", "V12"))
+
+# mutate a column to identify the Content 
+NO3_filtered <- NO3_filtered %>% mutate(Content = "NO3")
+NH4_filtered <- NH4_filtered %>% mutate(Content = "NH4")
+
+# Combine datasets 
+combined_data <- bind_rows(NO3_filtered, NH4_filtered)
+
+combined_data <- combined_data %>%
+  mutate(`N.dosages` = factor(`N.dosages`, levels = c("N:0", "N:67")))
+
+# Calculate pooled SE
+summary_data <- combined_data %>%
+  group_by(Genotype, Inoculant, `N.dosages`, Content) %>%
+  dplyr::summarize(mean_lsmean = mean(lsmean, na.rm = TRUE),
+                   pooled_variance = sum(SE^2, na.rm = TRUE),  # Sum the variances
+                   count = n(), 
+                   .groups = 'drop') %>%
+  mutate(pooled_SE = sqrt(pooled_variance / count)) 
+
+# calculate the trend 
+growth_stage_trend <- combined_data %>%
+  group_by(Growth.stage, Genotype, Inoculant, `N.dosages`, Content) %>%
+  dplyr::summarize(mean_lsmean = mean(lsmean, na.rm = TRUE),
+                   .groups = 'drop')
+
+# custom colors for NH₄⁺ and NO₃⁻
+MG <- c("NO3" = "#1f77b4", "NH4" = "#ff7f0e")
+
+# colors for Genotypes #
+genotype_colors <- c("B73" = "#66a182", "NIL 1" = "#2e4057")
+
+# Plot the summarized data
+base_plot <- ggplot(summary_data, aes(x = `N.dosages`, y = mean_lsmean, fill = Content)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8), color = "black") +
+  geom_errorbar(aes(ymin = mean_lsmean - pooled_SE, ymax = mean_lsmean + pooled_SE),
+                width = 0.2, position = position_dodge(width = 0.8)) +
+  scale_fill_manual(values = MG, labels = c(expression(NO[3]^"-"), expression(NH[4]^"+"))) +  # Set color scale with labels for NO₃⁻ and NH₄⁺
+  facet_grid(rows = vars(Genotype), cols = vars(Inoculant), scales = "free_x", switch = 'x', drop = TRUE) +  # Facet by Genotype and Inoculant, drop empty panels
+  labs(x = "N Dosage", y = "Mean Least Squares Mean (lsmean)",
+       title = expression("Averaged soil NH"[4]^"+" * " and NO"[3]^"-" * " leachate at V5 and V8 across Genotypes and management")) +  # Correct title with subscript and superscript
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  xlab(NULL) 
+
+# Add smooth trend lines ##optional
+final_plot <- base_plot +
+  geom_smooth(data = growth_stage_trend, aes(x = `N.dosages`, y = mean_lsmean, group = Content, color = Content),
+              method = "loess", se = FALSE, size = 0.8) +  # Add smooth trend line
+  scale_color_manual(values = MG, labels = c(expression(NO[3]^"-"), expression(NH[4]^"+")))
+
+# Print the final plot
+print(base_plot)+my_custom_theme() # This function can be found in our new package DspikeIn
